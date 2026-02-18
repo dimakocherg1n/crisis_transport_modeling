@@ -1,22 +1,30 @@
-﻿fastapi==0.104.1
+fastapi==0.104.1
 uvicorn[standard]==0.24.0
-sqlalchemy==2.0.23
-alembic==1.12.1
-psycopg2-binary==2.9.9
-pydantic==2.5.0
 python-jose[cryptography]==3.3.0
 passlib[bcrypt]==1.7.4
 python-multipart==0.0.6
-simpy==4.1.1
-pandas --only-binary :all:
-numpy==1.24.3  # Совместимая версия
-matplotlib==3.7.2
-plotly==5.14.1
-folium==0.14.0
-scipy==1.10.1
-networkx==3.1
-seaborn==0.12.2
-celery==5.2.7
-redis==4.5.5
+bcrypt==4.0.1
+
+# База данных
+sqlalchemy==2.0.23
+alembic==1.12.1
+psycopg2-binary==2.9.9
 python-dotenv==1.0.0
 
+# Обработка данных
+numpy==1.24.3
+pandas==2.0.3
+openpyxl==3.1.2  # Для Excel
+fpdf2==2.7.4     # Для PDF
+
+# Визуализация (оставляем только Plotly - он уже в браузере)
+plotly==5.14.1
+
+# Для симуляции
+simpy==4.1.1
+networkx==3.1
+scipy==1.10.1
+
+# Celery (если реально нужен, иначе удалить)
+# celery==5.2.7
+# redis==4.5.5
