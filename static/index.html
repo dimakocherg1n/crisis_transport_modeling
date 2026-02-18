@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.plot.ly/plotly-2.24.1.min.js"></script>
     <style>
-        /* ===== СТИЛИ БЕЗ ИЗМЕНЕНИЙ (ТВОИ) ===== */
+        /* ===== СТИЛИ БЕЗ ИЗМЕНЕНИЙ ===== */
         :root {
             --primary: #2c3e50;
             --secondary: #3498db;
@@ -372,7 +372,7 @@
             border-top: 1px solid #e0e0e0;
         }
 
-        /* ===== НОВЫЕ СТИЛИ ДЛЯ МОДАЛЬНОГО ОКНА ===== */
+        /* ===== СТИЛИ ДЛЯ МОДАЛЬНОГО ОКНА ===== */
         .modal {
             position: fixed;
             top: 0;
@@ -453,7 +453,7 @@
 </head>
 <body>
     <!-- Модальное окно авторизации -->
-    <div id="authModal" class="modal">
+    <div id="authModal" class="modal" style="display: none;">
         <div class="modal-content">
             <span class="modal-close" onclick="closeAuthModal()">&times;</span>
 
@@ -477,7 +477,7 @@
                 <div id="loginMessage" style="margin-top: 15px;"></div>
             </div>
 
-            <!-- Форма регистрации (скрыта) -->
+            <!-- Форма регистрации -->
             <div id="registerForm" style="display: none;">
                 <h2 style="margin-bottom: 20px; color: var(--primary);">Регистрация</h2>
                 <div class="form-group">
@@ -707,7 +707,7 @@
 
     <script>
         // ===========================================
-        // КОНФИГУРАЦИЯ
+        // КОНФИГУРАЦИЯ - ИСПРАВЛЕНО
         // ===========================================
         const API_BASE_URL = 'https://crisis-transport-modelingg.onrender.com/api/v1';
         const SIMULATIONS_API_URL = 'https://crisis-transport-modelingg.onrender.com/api/v1/simulations';
@@ -846,63 +846,63 @@
             }
         }
 
-async function register() {
-    const username = document.getElementById('regUsername').value;
-    const password = document.getElementById('regPassword').value;
-    const email = document.getElementById('regEmail').value;
-    const fullName = document.getElementById('regFullName').value;
+        async function register() {
+            const username = document.getElementById('regUsername').value;
+            const password = document.getElementById('regPassword').value;
+            const email = document.getElementById('regEmail').value;
+            const fullName = document.getElementById('regFullName').value;
 
-    // === ПРОВЕРКА EMAIL ===
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-        document.getElementById('registerMessage').innerHTML =
-            '<span style="color: var(--accent);">❌ Введите корректный email (пример: user@mail.ru)</span>';
-        return;
-    }
+            // === ПРОВЕРКА EMAIL ===
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                document.getElementById('registerMessage').innerHTML =
+                    '<span style="color: var(--accent);">❌ Введите корректный email (пример: user@mail.ru)</span>';
+                return;
+            }
 
-    const userData = {
-        username: username,
-        password: password,
-        email: email,
-        full_name: fullName || null
-    };
+            const userData = {
+                username: username,
+                password: password,
+                email: email,
+                full_name: fullName || null
+            };
 
-    console.log('📦 Отправляемые данные:', userData);
+            console.log('📦 Отправляемые данные:', userData);
 
-    const messageDiv = document.getElementById('registerMessage');
-    messageDiv.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Регистрация...';
+            const messageDiv = document.getElementById('registerMessage');
+            messageDiv.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Регистрация...';
 
-    try {
-        const response = await fetch(`${API_BASE_URL}/auth/register`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(userData)
-        });
+            try {
+                const response = await fetch(`${API_BASE_URL}/auth/register`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(userData)
+                });
 
-        const data = await response.json();
-        console.log('📥 Ответ сервера:', data);
+                const data = await response.json();
+                console.log('📥 Ответ сервера:', data);
 
-        if (response.ok) {
-            messageDiv.innerHTML = '<span style="color: var(--success);">✅ Регистрация успешна! Теперь войдите.</span>';
+                if (response.ok) {
+                    messageDiv.innerHTML = '<span style="color: var(--success);">✅ Регистрация успешна! Теперь войдите.</span>';
 
-            // Очищаем форму
-            document.getElementById('regUsername').value = '';
-            document.getElementById('regPassword').value = '';
-            document.getElementById('regEmail').value = '';
-            document.getElementById('regFullName').value = '';
+                    // Очищаем форму
+                    document.getElementById('regUsername').value = '';
+                    document.getElementById('regPassword').value = '';
+                    document.getElementById('regEmail').value = '';
+                    document.getElementById('regFullName').value = '';
 
-            // Переключаем на вкладку входа
-            switchAuthTab('login');
-        } else {
-            messageDiv.innerHTML = `<span style="color: var(--accent);">❌ ${data.detail || 'Ошибка регистрации'}</span>`;
+                    // Переключаем на вкладку входа
+                    switchAuthTab('login');
+                } else {
+                    messageDiv.innerHTML = `<span style="color: var(--accent);">❌ ${data.detail || 'Ошибка регистрации'}</span>`;
+                }
+            } catch (error) {
+                messageDiv.innerHTML = '<span style="color: var(--accent);">❌ Сервер недоступен</span>';
+                console.error(error);
+            }
         }
-    } catch (error) {
-        messageDiv.innerHTML = '<span style="color: var(--accent);">❌ Сервер недоступен</span>';
-        console.error(error);
-    }
-}
 
         function updateLoginStatus(username, isLoggedIn) {
             const loginIcon = document.querySelector('#loginStatus i');
@@ -949,10 +949,8 @@ async function register() {
         }
 
         // ===========================================
-        // ВСЕ СТАРЫЕ ФУНКЦИИ (БЕЗ ИЗМЕНЕНИЙ)
-        // ===========================================
-
         // РАБОТА СО СЦЕНАРИЯМИ
+        // ===========================================
         async function loadScenariosFromDB() {
             const scenariosList = document.getElementById('scenariosList');
             const simulationSelect = document.getElementById('simulationScenario');
@@ -1063,7 +1061,9 @@ async function register() {
             }
         }
 
+        // ===========================================
         // СИМУЛЯЦИЯ
+        // ===========================================
         async function runSimulation() {
             const scenarioSelect = document.getElementById('simulationScenario');
             const scenarioText = scenarioSelect.options[scenarioSelect.selectedIndex]?.text || 'Сценарий';
@@ -1167,7 +1167,9 @@ async function register() {
             }
         }
 
+        // ===========================================
         // ЗАГРУЗКА СИМУЛЯЦИЙ ИЗ БД
+        // ===========================================
         async function loadSimulationsFromDB() {
             if (!AUTH_TOKEN) return;
 
@@ -1235,7 +1237,9 @@ async function register() {
             }
         }
 
+        // ===========================================
         // ЗАГРУЗКА СРАВНЕНИЯ АЛГОРИТМОВ
+        // ===========================================
         async function loadAlgorithmComparison() {
             if (!AUTH_TOKEN) {
                 console.log('⚠️ Нет авторизации для загрузки алгоритмов');
@@ -1397,140 +1401,75 @@ async function register() {
             }
         }
 
-   async function exportReport(format) {
-    const simulationId = document.getElementById('exportSimulation').value;
-    const exportStatus = document.getElementById('exportStatus');
+        // ===========================================
+        // ЭКСПОРТ ОТЧЕТОВ - ИСПРАВЛЕНО
+        // ===========================================
+        async function exportReport(format) {
+            const simulationId = document.getElementById('exportSimulation').value;
+            const exportStatus = document.getElementById('exportStatus');
 
-    if (!AUTH_TOKEN) {
-        showNotification('Требуется авторизация', 'error');
-        showAuthModal();
-        return;
-    }
-
-    console.log('📤 Экспорт в формате:', format);
-    console.log('📦 ID симуляции:', simulationId);
-    console.log('🔑 Токен:', AUTH_TOKEN ? 'есть' : 'нет');
-
-    exportStatus.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Генерация отчета...';
-
-    try {
-        const url = `${API_BASE_URL}/export/simulation/${simulationId}/${format}`;
-        console.log('🌐 URL:', url);
-
-        const response = await fetch(url, {
-            method: 'GET',
-            headers: {
-                'Authorization': `Bearer ${AUTH_TOKEN}`  // ← ЭТО КЛЮЧЕВОЕ!
+            if (!AUTH_TOKEN) {
+                showNotification('Требуется авторизация', 'error');
+                showAuthModal();
+                return;
             }
-        });
 
-        console.log('📊 Статус ответа:', response.status);
+            console.log('📤 Экспорт в формате:', format);
+            console.log('📦 ID симуляции:', simulationId);
+            console.log('🔑 Токен:', AUTH_TOKEN ? AUTH_TOKEN.substring(0, 20) + '...' : 'нет');
 
-        if (response.status === 401) {
-            console.error('❌ Ошибка авторизации. Токен:', AUTH_TOKEN ? AUTH_TOKEN.substring(0, 20) + '...' : 'нет');
-            exportStatus.innerHTML = '<span style="color: var(--accent);">❌ Ошибка авторизации</span>';
-            showNotification('❌ Требуется повторный вход', 'error');
-            logout();
-            return;
-        }
+            exportStatus.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Генерация отчета...';
 
-        if (response.ok) {
-            const blob = await response.blob();
-            const downloadUrl = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = downloadUrl;
-            a.download = `simulation_${simulationId}.${format}`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            window.URL.revokeObjectURL(downloadUrl);
-
-            exportStatus.innerHTML = '<span style="color: var(--success);">✅ Отчет успешно скачан</span>';
-            showNotification(`✅ Отчет ${format.toUpperCase()} сохранен`, 'success');
-        } else {
-            const errorText = await response.text();
-            console.error('❌ Ошибка сервера:', response.status, errorText);
-            exportStatus.innerHTML = `<span style="color: var(--accent);">❌ Ошибка ${response.status}</span>`;
-            showNotification(`❌ Ошибка экспорта: ${response.status}`, 'error');
-        }
-    } catch (error) {
-        console.error('❌ Ошибка сети:', error);
-        exportStatus.innerHTML = '<span style="color: var(--accent);">❌ Сервер недоступен</span>';
-        showNotification('❌ Сервер недоступен', 'error');
-    }
-}
-
-    // ДИАГНОСТИКА
-    console.log('📤 Экспорт в формате:', format);
-    console.log('📦 ID симуляции:', simulationId);
-    console.log('🔑 Токен:', AUTH_TOKEN ? 'есть' : 'нет');
-
-    exportStatus.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Генерация отчета...';
-
-    try {
-        // ПРОБУЕМ РАЗНЫЕ ВАРИАНТЫ URL
-        const urls = [
-            `${API_BASE_URL}/export/simulation/${simulationId}/${format}`,
-            `${API_BASE_URL}/export/simulation/${simulationId}/${format}`,
-            `https://crisis-transport-modelingg.onrender.com/export/simulation/${simulationId}/${format}`,
-            `https://crisis-transport-modelingg.onrender.com/api/export/simulation/${simulationId}/${format}`
-        ];
-
-        let response = null;
-        let usedUrl = '';
-
-        for (const url of urls) {
             try {
-                console.log('🔄 Пробуем URL:', url);
-                const testResponse = await fetch(url, {
+                const url = `${API_BASE_URL}/export/simulation/${simulationId}/${format}`;
+                console.log('🌐 URL:', url);
+
+                const response = await fetch(url, {
                     method: 'GET',
                     headers: {
                         'Authorization': `Bearer ${AUTH_TOKEN}`
                     }
                 });
-                
-                if (testResponse.status !== 404) {
-                    response = testResponse;
-                    usedUrl = url;
-                    console.log('✅ Рабочий URL найден:', url);
-                    break;
+
+                console.log('📊 Статус ответа:', response.status);
+
+                if (response.status === 401) {
+                    console.error('❌ Ошибка авторизации');
+                    exportStatus.innerHTML = '<span style="color: var(--accent);">❌ Ошибка авторизации</span>';
+                    showNotification('❌ Требуется повторный вход', 'error');
+                    logout();
+                    return;
                 }
-            } catch (e) {
-                console.log('❌ Ошибка при попытке:', url);
+
+                if (response.ok) {
+                    const blob = await response.blob();
+                    const downloadUrl = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = downloadUrl;
+                    a.download = `simulation_${simulationId}.${format}`;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    window.URL.revokeObjectURL(downloadUrl);
+
+                    exportStatus.innerHTML = '<span style="color: var(--success);">✅ Отчет успешно скачан</span>';
+                    showNotification(`✅ Отчет ${format.toUpperCase()} сохранен`, 'success');
+                } else {
+                    const errorText = await response.text();
+                    console.error('❌ Ошибка сервера:', response.status, errorText);
+                    exportStatus.innerHTML = `<span style="color: var(--accent);">❌ Ошибка ${response.status}</span>`;
+                    showNotification(`❌ Ошибка экспорта: ${response.status}`, 'error');
+                }
+            } catch (error) {
+                console.error('❌ Ошибка сети:', error);
+                exportStatus.innerHTML = '<span style="color: var(--accent);">❌ Сервер недоступен</span>';
+                showNotification('❌ Сервер недоступен', 'error');
             }
         }
 
-        if (!response) {
-            throw new Error('Не удалось найти рабочий эндпоинт');
-        }
-
-        if (response.ok) {
-            const blob = await response.blob();
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `simulation_${simulationId}.${format}`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            window.URL.revokeObjectURL(url);
-
-            exportStatus.innerHTML = '<span style="color: var(--success);">✅ Отчет успешно скачан</span>';
-            showNotification(`✅ Отчет ${format.toUpperCase()} сохранен`, 'success');
-        } else {
-            const errorText = await response.text();
-            console.error('❌ Ошибка сервера:', response.status, errorText);
-            exportStatus.innerHTML = `<span style="color: var(--accent);">❌ Ошибка ${response.status}</span>`;
-            showNotification(`❌ Ошибка экспорта: ${response.status}`, 'error');
-        }
-    } catch (error) {
-        console.error('❌ Export error:', error);
-        exportStatus.innerHTML = '<span style="color: var(--accent);">❌ Ошибка подключения</span>';
-        showNotification('❌ Сервер недоступен', 'error');
-    }
-}
-
+        // ===========================================
         // НАВИГАЦИЯ
+        // ===========================================
         function showTab(tabName) {
             document.querySelectorAll('.tab-content').forEach(tab => {
                 tab.classList.add('hidden');
@@ -1552,7 +1491,9 @@ async function register() {
             }
         }
 
+        // ===========================================
         // УВЕДОМЛЕНИЯ
+        // ===========================================
         function showNotification(message, type = 'info') {
             const notification = document.createElement('div');
             notification.className = `notification notification-${type}`;
@@ -1572,5 +1513,4 @@ async function register() {
         }
     </script>
 </body>
-
 </html>
