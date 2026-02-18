@@ -4,8 +4,11 @@ PDF Export Module - Standalone version
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import FileResponse
 from datetime import datetime
+from openpyxl import Workbook
 import os
 import uuid
+import csv
+
 
 router = APIRouter(tags=["export"])  # Убрали prefix!
 
@@ -37,4 +40,5 @@ async def export_simulation_pdf(
         )
     except Exception as e:
         print(f"PDF Error: {e}")
+
         raise HTTPException(status_code=500, detail=str(e))
