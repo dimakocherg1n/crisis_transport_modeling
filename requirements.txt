@@ -1,5 +1,8 @@
+# Веб-фреймворк
 fastapi==0.104.1
 uvicorn[standard]==0.24.0
+
+# Безопасность
 python-jose[cryptography]==3.3.0
 passlib[bcrypt]==1.7.4
 python-multipart==0.0.6
@@ -11,20 +14,16 @@ alembic==1.12.1
 psycopg2-binary==2.9.9
 python-dotenv==1.0.0
 
-# Обработка данных
-numpy==1.24.3
-pandas==2.0.3
-openpyxl==3.1.2  # Для Excel
-fpdf2==2.7.4     # Для PDF
+# Обработка данных (фиксированные версии для Python 3.10)
+numpy==1.23.5
+pandas==1.5.3
+openpyxl==3.1.2
+fpdf2==2.7.4
 
-# Визуализация (оставляем только Plotly - он уже в браузере)
+# Визуализация
 plotly==5.14.1
 
 # Для симуляции
 simpy==4.1.1
-networkx==3.1
+networkx==2.8.8
 scipy==1.10.1
-
-# Celery (если реально нужен, иначе удалить)
-# celery==5.2.7
-# redis==4.5.5
