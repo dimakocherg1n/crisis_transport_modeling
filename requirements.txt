@@ -7,10 +7,11 @@ bcrypt==4.0.1
 
 # База данных
 sqlalchemy==2.0.23
+alembic==1.12.1
 psycopg2-binary==2.9.9
 python-dotenv==1.0.0
 
-# Научный стек (версии, гарантированно работающие с Python 3.10)
+# Обработка данных
 numpy==1.23.5
 pandas==1.5.3
 openpyxl==3.1.2
@@ -23,4 +24,10 @@ plotly==5.14.1
 simpy==4.1.1
 networkx==2.8.8
 scipy==1.10.1
-email-validator==2.0.0  # <-- ЭТА НОВАЯ СТРОКА
+
+# ВАЖНО: ФИКСИРУЕМ СОВМЕСТИМЫЕ ВЕРСИИ PYDANTIC
+pydantic==2.5.0
+pydantic-core==2.10.0
+email-validator==2.0.0
+typing-extensions==4.8.0
+annotated-types==0.5.0
