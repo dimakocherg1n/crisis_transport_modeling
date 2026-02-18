@@ -1,0 +1,1489 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crisis Transport Optimization</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.plot.ly/plotly-2.24.1.min.js"></script>
+    <style>
+        /* ===== СТИЛИ БЕЗ ИЗМЕНЕНИЙ (ТВОИ) ===== */
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --accent: #e74c3c;
+            --success: #2ecc71;
+            --warning: #f39c12;
+            --light: #ecf0f1;
+            --dark: #2c3e50;
+            --gray: #95a5a6;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            color: var(--dark);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--primary) 0%, #1a2530 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 15px;
+        }
+
+        .logo i {
+            font-size: 3rem;
+            color: var(--secondary);
+        }
+
+        .logo h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            max-width: 800px;
+        }
+
+        .nav-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            flex-wrap: wrap;
+        }
+
+        .tab {
+            padding: 12px 25px;
+            background: var(--light);
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--dark);
+        }
+
+        .tab:hover {
+            background: var(--secondary);
+            color: white;
+            transform: translateY(-3px);
+        }
+
+        .tab.active {
+            background: var(--secondary);
+            color: white;
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.3);
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(600px, 1fr));
+            gap: 30px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card-title {
+            font-size: 1.4rem;
+            color: var(--primary);
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--secondary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--secondary);
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .btn-primary {
+            background: var(--secondary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.3);
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-warning {
+            background: var(--warning);
+            color: white;
+        }
+
+        .btn-danger {
+            background: var(--accent);
+            color: white;
+        }
+
+        .btn-info {
+            background: var(--secondary);
+            color: white;
+        }
+
+        .chart-container {
+            width: 100%;
+            height: 400px;
+            margin-top: 20px;
+        }
+
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .metric-card {
+            background: var(--light);
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 4px solid var(--secondary);
+            text-align: center;
+        }
+
+        .metric-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 5px;
+        }
+
+        .metric-label {
+            font-size: 0.9rem;
+            color: var(--gray);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .status {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 15px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .status-success {
+            background: rgba(46, 204, 113, 0.1);
+            color: var(--success);
+        }
+
+        .status-warning {
+            background: rgba(243, 156, 18, 0.1);
+            color: var(--warning);
+        }
+
+        .status-danger {
+            background: rgba(231, 76, 60, 0.1);
+            color: var(--accent);
+        }
+
+        .login-badge {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            padding: 10px 20px;
+            border-radius: 30px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            z-index: 1000;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .login-badge:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: var(--gray);
+        }
+
+        .loading i {
+            font-size: 2rem;
+            margin-bottom: 15px;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 15px 25px;
+            border-radius: 10px;
+            color: white;
+            font-weight: 600;
+            z-index: 2000;
+            animation: slideDown 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .notification-success {
+            background: var(--success);
+        }
+
+        .notification-error {
+            background: var(--accent);
+        }
+
+        .notification-info {
+            background: var(--secondary);
+        }
+
+        .notification-warning {
+            background: var(--warning);
+        }
+
+        @keyframes slideDown {
+            from {
+                top: -100px;
+                opacity: 0;
+            }
+            to {
+                top: 20px;
+                opacity: 1;
+            }
+        }
+
+        .footer {
+            text-align: center;
+            padding: 30px;
+            margin-top: 50px;
+            color: var(--gray);
+            border-top: 1px solid #e0e0e0;
+        }
+
+        /* ===== НОВЫЕ СТИЛИ ДЛЯ МОДАЛЬНОГО ОКНА ===== */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 3000;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            position: relative;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--gray);
+        }
+
+        .modal-close:hover {
+            color: var(--accent);
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+
+        .auth-tab {
+            flex: 1;
+            padding: 10px;
+            text-align: center;
+            cursor: pointer;
+            border: none;
+            background: #f0f0f0;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: 0.3s;
+        }
+
+        .auth-tab.active {
+            background: var(--secondary);
+            color: white;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+
+            .logo h1 {
+                font-size: 1.8rem;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Модальное окно авторизации -->
+    <div id="authModal" class="modal">
+        <div class="modal-content">
+            <span class="modal-close" onclick="closeAuthModal()">&times;</span>
+
+            <div class="tabs">
+                <button class="auth-tab active" onclick="switchAuthTab('login')">Вход</button>
+                <button class="auth-tab" onclick="switchAuthTab('register')">Регистрация</button>
+            </div>
+
+            <!-- Форма входа -->
+            <div id="loginForm">
+                <h2 style="margin-bottom: 20px; color: var(--primary);">Вход в систему</h2>
+                <div class="form-group">
+                    <label>Имя пользователя</label>
+                    <input type="text" id="loginUsername" class="form-control" placeholder="admin" value="admin">
+                </div>
+                <div class="form-group">
+                    <label>Пароль</label>
+                    <input type="password" id="loginPassword" class="form-control" placeholder="••••••••" value="admin123">
+                </div>
+                <button class="btn btn-success" onclick="login()" style="width: 100%;">Войти</button>
+                <div id="loginMessage" style="margin-top: 15px;"></div>
+            </div>
+
+            <!-- Форма регистрации (скрыта) -->
+            <div id="registerForm" style="display: none;">
+                <h2 style="margin-bottom: 20px; color: var(--primary);">Регистрация</h2>
+                <div class="form-group">
+                    <label>Имя пользователя</label>
+                    <input type="text" id="regUsername" class="form-control" placeholder="ivan123">
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="regEmail" class="form-control" placeholder="ivan@mail.ru">
+                </div>
+                <div class="form-group">
+                    <label>Полное имя</label>
+                    <input type="text" id="regFullName" class="form-control" placeholder="Иванов Иван">
+                </div>
+                <div class="form-group">
+                    <label>Пароль</label>
+                    <input type="password" id="regPassword" class="form-control" placeholder="••••••••">
+                </div>
+                <button class="btn btn-primary" onclick="register()" style="width: 100%;">Зарегистрироваться</button>
+                <div id="registerMessage" style="margin-top: 15px;"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="login-badge" id="loginStatus" onclick="showAuthModal()">
+        <i class="fas fa-circle" style="color: var(--gray);"></i>
+        <span id="loginText">Войти в систему</span>
+    </div>
+
+    <div class="container">
+        <header class="header">
+            <div class="header-content">
+                <div class="logo">
+                    <i class="fas fa-truck-moving"></i>
+                    <div>
+                        <h1>Crisis Transport Optimization</h1>
+                        <p class="subtitle">Реальные алгоритмы оптимизации + авторизация</p>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <nav class="nav-tabs">
+            <button class="tab active" onclick="showTab('scenarios')">
+                <i class="fas fa-clipboard-list"></i> Сценарии
+            </button>
+            <button class="tab" onclick="showTab('simulation')">
+                <i class="fas fa-play-circle"></i> Симуляция
+            </button>
+            <button class="tab" onclick="showTab('export')">
+                <i class="fas fa-file-export"></i> Экспорт
+            </button>
+            <button class="tab" onclick="showTab('analysis')">
+                <i class="fas fa-chart-bar"></i> Аналитика
+            </button>
+        </nav>
+
+        <div class="main-content">
+            <!-- Вкладка: Сценарии -->
+            <div id="scenarios-tab" class="tab-content">
+                <div class="card">
+                    <h2 class="card-title">
+                        <i class="fas fa-plus-circle"></i> Создать сценарий
+                    </h2>
+                    <div class="form-group">
+                        <label><i class="fas fa-heading"></i> Название</label>
+                        <input type="text" id="scenarioName" class="form-control" placeholder="Например: Землетрясение в регионе">
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-align-left"></i> Описание</label>
+                        <textarea id="scenarioDescription" class="form-control" rows="3" placeholder="Описание кризисной ситуации..."></textarea>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label><i class="fas fa-exclamation-triangle"></i> Уровень (1-5)</label>
+                            <input type="number" id="scenarioSeverity" class="form-control" min="1" max="5" value="3">
+                        </div>
+                    </div>
+                    <button class="btn btn-primary" onclick="createScenario()" style="width: 100%;">
+                        <i class="fas fa-save"></i> Сохранить сценарий в БД
+                    </button>
+                </div>
+
+                <div class="card">
+                    <h2 class="card-title">
+                        <i class="fas fa-list"></i> Мои сценарии (из БД)
+                    </h2>
+                    <div id="scenariosList">
+                        <div class="loading">
+                            <i class="fas fa-spinner fa-spin"></i>
+                            <p>Загрузка сценариев...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Вкладка: Симуляция -->
+            <div id="simulation-tab" class="tab-content hidden">
+                <div class="card">
+                    <h2 class="card-title">
+                        <i class="fas fa-cogs"></i> Запуск симуляции
+                    </h2>
+                    <div class="form-group">
+                        <label><i class="fas fa-clipboard-check"></i> Сценарий</label>
+                        <select id="simulationScenario" class="form-control">
+                            <option value="">Выберите сценарий...</option>
+                        </select>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label><i class="fas fa-truck"></i> Количество ТС</label>
+                            <input type="number" id="simulationVehicles" class="form-control" value="15" min="1" max="100">
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-clock"></i> Длительность (ч)</label>
+                            <input type="number" id="simulationDuration" class="form-control" value="12" min="1" max="168">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-fire"></i> Интенсивность кризиса</label>
+                        <input type="range" id="simulationIntensity" class="form-control" min="0" max="1" step="0.1" value="0.5">
+                        <div style="text-align: center; font-weight: bold; margin-top: 5px;" id="intensityValue">0.5</div>
+                    </div>
+                    <button class="btn btn-success" onclick="runSimulation()" style="width: 100%;">
+                        <i class="fas fa-play"></i> Запустить и сохранить в БД
+                    </button>
+                </div>
+
+                <div class="card">
+                    <h2 class="card-title">
+                        <i class="fas fa-chart-line"></i> Прогресс выполнения
+                    </h2>
+                    <div id="simulationProgress" style="background: #f0f0f0; border-radius: 8px; height: 20px; overflow: hidden;">
+                        <div id="progressBar" style="background: var(--success); height: 100%; width: 0%; transition: width 0.3s ease;"></div>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin-top: 10px;">
+                        <span id="progressText">0%</span>
+                        <span id="simulationStatus">Готов к запуску</span>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2 class="card-title">
+                        <i class="fas fa-chart-pie"></i> Результаты симуляции
+                    </h2>
+                    <div id="simulationResults" class="results-grid">
+                        <div class="metric-card">
+                            <div class="metric-value">0</div>
+                            <div class="metric-label">Доставок</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-value">0ч</div>
+                            <div class="metric-label">Среднее время</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-value">0%</div>
+                            <div class="metric-label">Эффективность</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-value">0</div>
+                            <div class="metric-label">ID симуляции</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Вкладка: Экспорт -->
+            <div id="export-tab" class="tab-content hidden">
+                <div class="card">
+                    <h2 class="card-title">
+                        <i class="fas fa-file-export"></i> Экспорт отчетов
+                    </h2>
+                    <div class="form-group">
+                        <label><i class="fas fa-list"></i> Выберите симуляцию</label>
+                        <select id="exportSimulation" class="form-control">
+                            <option value="123">Симуляция #123 (Тестовая)</option>
+                        </select>
+                    </div>
+                    <div class="form-row">
+                        <button class="btn btn-success" onclick="exportReport('excel')">
+                            <i class="fas fa-file-excel"></i> Excel
+                        </button>
+                        <button class="btn btn-primary" onclick="exportReport('pdf')">
+                            <i class="fas fa-file-pdf"></i> PDF
+                        </button>
+                        <button class="btn btn-info" onclick="exportReport('csv')">
+                            <i class="fas fa-file-csv"></i> CSV
+                        </button>
+                    </div>
+                    <div id="exportStatus" style="margin-top: 20px; text-align: center;"></div>
+                </div>
+            </div>
+
+            <!-- Вкладка: Аналитика -->
+            <div id="analysis-tab" class="tab-content hidden">
+                <div class="card">
+                    <h2 class="card-title">
+                        <i class="fas fa-chart-bar"></i> Сравнение алгоритмов (реальные данные)
+                    </h2>
+                    <div id="efficiencyChart" class="chart-container">
+                        <div class="loading" id="chartLoading">
+                            <i class="fas fa-spinner fa-spin"></i>
+                            <p>Загрузка данных алгоритмов...</p>
+                        </div>
+                    </div>
+                    <div id="algorithmStats" style="margin-top: 20px; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px;"></div>
+                </div>
+                <div class="card">
+                    <h2 class="card-title">
+                        <i class="fas fa-history"></i> История симуляций (из БД)
+                    </h2>
+                    <div id="simulationsHistory">
+                        <div class="loading">
+                            <i class="fas fa-spinner fa-spin"></i>
+                            <p>Загрузка истории...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <footer class="footer">
+            <p>Crisis Transport Optimization API v2.0 | Реальные алгоритмы + авторизация</p>
+            <p>API: <a href="http://localhost:8001/docs" target="_blank">http://localhost:8001/docs</a></p>
+        </footer>
+    </div>
+
+    <script>
+        // ===========================================
+        // КОНФИГУРАЦИЯ
+        // ===========================================
+        const API_BASE_URL = 'http://localhost:8001/api/v1';
+        const SIMULATIONS_API_URL = 'http://localhost:8001/api/v1/simulations';
+        const SCENARIOS_API_URL = 'http://localhost:8001/api/v1/scenarios';
+        const OPTIMIZATION_API_URL = 'http://localhost:8001/api/v1/optimization';
+        let AUTH_TOKEN = null;
+        let CURRENT_USER = null;
+
+        // ===========================================
+        // ИНИЦИАЛИЗАЦИЯ
+        // ===========================================
+        document.addEventListener('DOMContentLoaded', async function() {
+            console.log('🚀 Запуск веб-интерфейса...');
+
+            // Проверяем, есть ли сохраненный токен
+            const savedToken = localStorage.getItem('token');
+            if (savedToken) {
+                AUTH_TOKEN = savedToken;
+                await checkToken();
+            } else {
+                // Показываем модальное окно входа
+                showAuthModal();
+            }
+
+            // Скрываем все вкладки кроме первой
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.add('hidden');
+            });
+            document.getElementById('scenarios-tab').classList.remove('hidden');
+
+            // Настройка слайдера
+            const intensitySlider = document.getElementById('simulationIntensity');
+            if (intensitySlider) {
+                intensitySlider.addEventListener('input', function() {
+                    document.getElementById('intensityValue').textContent = this.value;
+                });
+            }
+        });
+
+        // ===========================================
+        // МОДАЛЬНОЕ ОКНО АВТОРИЗАЦИИ
+        // ===========================================
+        function showAuthModal() {
+            document.getElementById('authModal').style.display = 'flex';
+        }
+
+        function closeAuthModal() {
+            document.getElementById('authModal').style.display = 'none';
+        }
+
+        function switchAuthTab(tab) {
+            document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+            if (tab === 'login') {
+                document.querySelector('.auth-tab:first-child').classList.add('active');
+                document.getElementById('loginForm').style.display = 'block';
+                document.getElementById('registerForm').style.display = 'none';
+            } else {
+                document.querySelector('.auth-tab:last-child').classList.add('active');
+                document.getElementById('loginForm').style.display = 'none';
+                document.getElementById('registerForm').style.display = 'block';
+            }
+        }
+
+        // ===========================================
+        // АВТОРИЗАЦИЯ
+        // ===========================================
+        async function checkToken() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/auth/me`, {
+                    headers: {
+                        'Authorization': `Bearer ${AUTH_TOKEN}`
+                    }
+                });
+
+                if (response.ok) {
+                    CURRENT_USER = await response.json();
+                    updateLoginStatus(CURRENT_USER.username, true);
+                    closeAuthModal();
+
+                    // Загружаем данные
+                    await loadScenariosFromDB();
+                    await loadSimulationsFromDB();
+                } else {
+                    // Токен недействителен
+                    localStorage.removeItem('token');
+                    AUTH_TOKEN = null;
+                    showAuthModal();
+                }
+            } catch (error) {
+                console.error('Token check error:', error);
+                showAuthModal();
+            }
+        }
+
+        async function login() {
+            const username = document.getElementById('loginUsername').value;
+            const password = document.getElementById('loginPassword').value;
+            const messageDiv = document.getElementById('loginMessage');
+
+            messageDiv.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Проверка...';
+
+            try {
+                const formData = new URLSearchParams();
+                formData.append('username', username);
+                formData.append('password', password);
+
+                const response = await fetch(`${API_BASE_URL}/auth/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    AUTH_TOKEN = data.access_token;
+                    localStorage.setItem('token', AUTH_TOKEN);
+
+                    messageDiv.innerHTML = '<span style="color: var(--success);">✅ Успешный вход!</span>';
+
+                    await getCurrentUser();
+                    updateLoginStatus(username, true);
+                    closeAuthModal();
+
+                    // Загружаем данные
+                    await loadScenariosFromDB();
+                    await loadSimulationsFromDB();
+                } else {
+                    messageDiv.innerHTML = `<span style="color: var(--accent);">❌ ${data.detail || 'Ошибка входа'}</span>`;
+                }
+            } catch (error) {
+                messageDiv.innerHTML = '<span style="color: var(--accent);">❌ Сервер недоступен</span>';
+                console.error(error);
+            }
+        }
+
+async function register() {
+    const username = document.getElementById('regUsername').value;
+    const password = document.getElementById('regPassword').value;
+    const email = document.getElementById('regEmail').value;
+    const fullName = document.getElementById('regFullName').value;
+
+    // === ПРОВЕРКА EMAIL ===
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+        document.getElementById('registerMessage').innerHTML =
+            '<span style="color: var(--accent);">❌ Введите корректный email (пример: user@mail.ru)</span>';
+        return;
+    }
+
+    const userData = {
+        username: username,
+        password: password,
+        email: email,
+        full_name: fullName || null
+    };
+
+    console.log('📦 Отправляемые данные:', userData);
+
+    const messageDiv = document.getElementById('registerMessage');
+    messageDiv.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Регистрация...';
+
+    try {
+        const response = await fetch(`${API_BASE_URL}/auth/register`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(userData)
+        });
+
+        const data = await response.json();
+        console.log('📥 Ответ сервера:', data);
+
+        if (response.ok) {
+            messageDiv.innerHTML = '<span style="color: var(--success);">✅ Регистрация успешна! Теперь войдите.</span>';
+
+            // Очищаем форму
+            document.getElementById('regUsername').value = '';
+            document.getElementById('regPassword').value = '';
+            document.getElementById('regEmail').value = '';
+            document.getElementById('regFullName').value = '';
+
+            // Переключаем на вкладку входа
+            switchAuthTab('login');
+        } else {
+            messageDiv.innerHTML = `<span style="color: var(--accent);">❌ ${data.detail || 'Ошибка регистрации'}</span>`;
+        }
+    } catch (error) {
+        messageDiv.innerHTML = '<span style="color: var(--accent);">❌ Сервер недоступен</span>';
+        console.error(error);
+    }
+}
+
+        function updateLoginStatus(username, isLoggedIn) {
+            const loginIcon = document.querySelector('#loginStatus i');
+            const loginText = document.getElementById('loginText');
+
+            if (isLoggedIn) {
+                loginIcon.style.color = '#2ecc71';
+                loginText.textContent = username;
+            } else {
+                loginIcon.style.color = 'var(--gray)';
+                loginText.textContent = 'Войти в систему';
+            }
+        }
+
+        async function getCurrentUser() {
+            if (!AUTH_TOKEN) return;
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/auth/me`, {
+                    headers: {
+                        'Authorization': `Bearer ${AUTH_TOKEN}`
+                    }
+                });
+
+                if (response.ok) {
+                    CURRENT_USER = await response.json();
+                    console.log('👤 Текущий пользователь:', CURRENT_USER);
+                }
+            } catch (error) {
+                console.error('Get user error:', error);
+            }
+        }
+
+        function logout() {
+            AUTH_TOKEN = null;
+            CURRENT_USER = null;
+            localStorage.removeItem('token');
+            updateLoginStatus(null, false);
+            showAuthModal();
+
+            // Очищаем данные на странице
+            document.getElementById('scenariosList').innerHTML = '<div class="loading"><i class="fas fa-spinner fa-spin"></i><p>Загрузка сценариев...</p></div>';
+            document.getElementById('simulationsHistory').innerHTML = '<div class="loading"><i class="fas fa-spinner fa-spin"></i><p>Загрузка истории...</p></div>';
+        }
+
+        // ===========================================
+        // ВСЕ СТАРЫЕ ФУНКЦИИ (БЕЗ ИЗМЕНЕНИЙ)
+        // ===========================================
+
+        // РАБОТА СО СЦЕНАРИЯМИ
+        async function loadScenariosFromDB() {
+            const scenariosList = document.getElementById('scenariosList');
+            const simulationSelect = document.getElementById('simulationScenario');
+
+            if (!AUTH_TOKEN) {
+                scenariosList.innerHTML = '<div class="loading"><i class="fas fa-exclamation-triangle"></i><p>Требуется авторизация</p></div>';
+                return;
+            }
+
+            try {
+                const response = await fetch(`${SCENARIOS_API_URL}/list`, {
+                    headers: {
+                        'Authorization': `Bearer ${AUTH_TOKEN}`
+                    }
+                });
+
+                let scenarios = [];
+                if (response.ok) {
+                    scenarios = await response.json();
+                }
+
+                scenariosList.innerHTML = '';
+
+                if (scenarios.length === 0) {
+                    scenariosList.innerHTML = '<div class="loading"><p>Нет сохраненных сценариев</p></div>';
+                    return;
+                }
+
+                scenarios.forEach(scenario => {
+                    const card = document.createElement('div');
+                    card.className = 'metric-card';
+                    card.style.textAlign = 'left';
+                    card.style.marginBottom = '10px';
+                    card.innerHTML = `
+                        <h3 style="margin-bottom: 10px; color: var(--primary);">${scenario.name}</h3>
+                        <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+                            <span class="status ${scenario.severity > 3 ? 'status-danger' : scenario.severity > 2 ? 'status-warning' : 'status-success'}">
+                                Уровень: ${scenario.severity}
+                            </span>
+                            <span style="color: var(--gray);">
+                                <i class="far fa-clock"></i> ${new Date(scenario.created_at).toLocaleDateString()}
+                            </span>
+                        </div>
+                        <p style="color: var(--gray); font-size: 0.9rem;">${scenario.description || 'Нет описания'}</p>
+                    `;
+                    scenariosList.appendChild(card);
+
+                    if (simulationSelect) {
+                        simulationSelect.innerHTML += `<option value="${scenario.id}">${scenario.name}</option>`;
+                    }
+                });
+
+            } catch (error) {
+                console.error('Load scenarios error:', error);
+                scenariosList.innerHTML = '<div class="loading"><i class="fas fa-exclamation-triangle"></i><p>Ошибка загрузки</p></div>';
+            }
+        }
+
+        async function createScenario() {
+            const name = document.getElementById('scenarioName').value;
+            const description = document.getElementById('scenarioDescription').value;
+            const severity = document.getElementById('scenarioSeverity').value;
+
+            if (!name) {
+                showNotification('Введите название сценария', 'error');
+                return;
+            }
+
+            if (!AUTH_TOKEN) {
+                showNotification('Требуется авторизация', 'error');
+                showAuthModal();
+                return;
+            }
+
+            showNotification('💾 Сохранение сценария в БД...', 'info');
+
+            try {
+                const response = await fetch(`${SCENARIOS_API_URL}/create`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${AUTH_TOKEN}`
+                    },
+                    body: JSON.stringify({
+                        name: name,
+                        description: description || 'Нет описания',
+                        severity: parseInt(severity)
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.success) {
+                    showNotification(`✅ Сценарий "${name}" сохранен в БД!`, 'success');
+
+                    document.getElementById('scenarioName').value = '';
+                    document.getElementById('scenarioDescription').value = '';
+                    document.getElementById('scenarioSeverity').value = '3';
+
+                    await loadScenariosFromDB();
+                } else {
+                    showNotification('❌ Ошибка сохранения в БД', 'error');
+                }
+
+            } catch (error) {
+                console.error('Error:', error);
+                showNotification('❌ Сервер недоступен', 'error');
+            }
+        }
+
+        // СИМУЛЯЦИЯ
+        async function runSimulation() {
+            const scenarioSelect = document.getElementById('simulationScenario');
+            const scenarioText = scenarioSelect.options[scenarioSelect.selectedIndex]?.text || 'Сценарий';
+            const scenarioId = scenarioSelect.value;
+            const vehicles = document.getElementById('simulationVehicles').value;
+            const duration = document.getElementById('simulationDuration').value;
+            const intensity = document.getElementById('simulationIntensity').value;
+
+            if (!scenarioId) {
+                showNotification('Выберите сценарий', 'error');
+                return;
+            }
+
+            if (!AUTH_TOKEN) {
+                showNotification('Требуется авторизация', 'error');
+                showAuthModal();
+                return;
+            }
+
+            showNotification('🚀 Запуск симуляции...', 'info');
+            document.getElementById('simulationStatus').textContent = 'Выполняется...';
+
+            let progress = 0;
+            const interval = setInterval(() => {
+                progress += 2;
+                document.getElementById('progressBar').style.width = `${progress}%`;
+                document.getElementById('progressText').textContent = `${progress}%`;
+
+                if (progress >= 100) {
+                    clearInterval(interval);
+                    document.getElementById('simulationStatus').textContent = 'Завершено';
+                    createSimulationInDB(scenarioText, vehicles, duration, intensity);
+                }
+            }, 100);
+        }
+
+        async function createSimulationInDB(scenario, vehicles, duration, intensity) {
+            console.log('📝 Создание симуляции в БД...');
+
+            try {
+                const response = await fetch(`${SIMULATIONS_API_URL}/create`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${AUTH_TOKEN}`
+                    },
+                    body: JSON.stringify({
+                        name: `Симуляция: ${scenario}`,
+                        vehicles: parseInt(vehicles),
+                        duration: parseInt(duration),
+                        intensity: parseFloat(intensity),
+                        scenario: scenario
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.success) {
+                    const simId = data.simulation_id;
+                    const results = data.results;
+
+                    showNotification(`✅ Симуляция #${simId} сохранена в БД!`, 'success');
+
+                    document.getElementById('simulationResults').innerHTML = `
+                        <div class="metric-card">
+                            <div class="metric-value">${results.deliveries}</div>
+                            <div class="metric-label">Доставок</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-value">${results.avg_time}ч</div>
+                            <div class="metric-label">Среднее время</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-value">${results.efficiency}%</div>
+                            <div class="metric-label">Эффективность</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-value">${simId}</div>
+                            <div class="metric-label">ID симуляции</div>
+                        </div>
+                    `;
+
+                    const exportSelect = document.getElementById('exportSimulation');
+                    if (exportSelect) {
+                        const option = document.createElement('option');
+                        option.value = simId;
+                        option.textContent = `Симуляция #${simId} - ${scenario}`;
+                        option.selected = true;
+                        exportSelect.appendChild(option);
+                    }
+
+                    await loadSimulationsFromDB();
+                } else {
+                    console.error('Ошибка создания симуляции:', data);
+                    showNotification('❌ Ошибка сохранения в БД', 'error');
+                }
+
+            } catch (error) {
+                console.error('Ошибка:', error);
+                showNotification('❌ Сервер недоступен', 'error');
+            }
+        }
+
+        // ЗАГРУЗКА СИМУЛЯЦИЙ ИЗ БД
+        async function loadSimulationsFromDB() {
+            if (!AUTH_TOKEN) return;
+
+            try {
+                const response = await fetch(`${SIMULATIONS_API_URL}/list`, {
+                    headers: {
+                        'Authorization': `Bearer ${AUTH_TOKEN}`
+                    }
+                });
+
+                if (response.ok) {
+                    const simulations = await response.json();
+                    const historyDiv = document.getElementById('simulationsHistory');
+                    const exportSelect = document.getElementById('exportSimulation');
+
+                    if (simulations.length === 0) {
+                        historyDiv.innerHTML = '<div class="loading"><p>Нет сохраненных симуляций</p></div>';
+                        return;
+                    }
+
+                    historyDiv.innerHTML = '';
+
+                    if (exportSelect) {
+                        exportSelect.innerHTML = '<option value="123">Симуляция #123 (Тестовая)</option>';
+                    }
+
+                    simulations.forEach(sim => {
+                        const card = document.createElement('div');
+                        card.className = 'metric-card';
+                        card.style.textAlign = 'left';
+                        card.style.marginBottom = '10px';
+                        card.innerHTML = `
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <h3 style="color: var(--primary);">${sim.name}</h3>
+                                <span class="status ${sim.results?.intensity > 0.7 ? 'status-danger' : sim.results?.intensity > 0.3 ? 'status-warning' : 'status-success'}">
+                                    ID: ${sim.id}
+                                </span>
+                            </div>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px;">
+                                <div>
+                                    <div style="font-size: 0.8rem; color: var(--gray);">Доставок:</div>
+                                    <div style="font-weight: bold;">${sim.results?.deliveries || 0}</div>
+                                </div>
+                                <div>
+                                    <div style="font-size: 0.8rem; color: var(--gray);">Эффективность:</div>
+                                    <div style="font-weight: bold;">${sim.results?.efficiency || 0}%</div>
+                                </div>
+                            </div>
+                            <div style="margin-top: 15px; font-size: 0.8rem; color: var(--gray);">
+                                <i class="far fa-clock"></i> ${new Date(sim.created_at).toLocaleString()}
+                            </div>
+                        `;
+                        historyDiv.appendChild(card);
+
+                        if (exportSelect) {
+                            const option = document.createElement('option');
+                            option.value = sim.id;
+                            option.textContent = `Симуляция #${sim.id} - ${sim.results?.scenario || 'Без названия'}`;
+                            exportSelect.appendChild(option);
+                        }
+                    });
+                }
+            } catch (error) {
+                console.error('Ошибка загрузки симуляций:', error);
+            }
+        }
+
+        // ЗАГРУЗКА СРАВНЕНИЯ АЛГОРИТМОВ
+        async function loadAlgorithmComparison() {
+            if (!AUTH_TOKEN) {
+                console.log('⚠️ Нет авторизации для загрузки алгоритмов');
+                return;
+            }
+
+            const chartContainer = document.getElementById('efficiencyChart');
+            const statsContainer = document.getElementById('algorithmStats');
+
+            if (!chartContainer) {
+                console.error('❌ Контейнер для графика не найден!');
+                return;
+            }
+
+            chartContainer.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-spin"></i><p>Загрузка данных алгоритмов...</p></div>';
+            statsContainer.innerHTML = '';
+
+            try {
+                const response = await fetch(`${OPTIMIZATION_API_URL}/compare`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${AUTH_TOKEN}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                console.log('✅ Данные алгоритмов получены:', data);
+
+                if (!data.comparison || data.comparison.length === 0) {
+                    chartContainer.innerHTML = '<div style="text-align: center; padding: 40px;">Нет данных для отображения</div>';
+                    return;
+                }
+
+                const algorithmNames = {
+                    'genetic': 'Генетический',
+                    'annealing': 'Имитация отжига',
+                    'ant_colony': 'Муравьиный'
+                };
+
+                const algorithms = [];
+                const costs = [];
+                const colors = [];
+
+                data.comparison.forEach(alg => {
+                    algorithms.push(algorithmNames[alg.algorithm] || alg.algorithm);
+                    costs.push(alg.total_cost);
+
+                    const colorMap = {
+                        'genetic': '#3498db',
+                        'annealing': '#e74c3c',
+                        'ant_colony': '#2ecc71'
+                    };
+                    colors.push(colorMap[alg.algorithm] || '#95a5a6');
+                });
+
+                chartContainer.innerHTML = '';
+
+                const chartData = [{
+                    x: algorithms,
+                    y: costs,
+                    type: 'bar',
+                    marker: { color: colors },
+                    text: costs.map(cost => `${cost.toFixed(2)} ₽`),
+                    textposition: 'outside',
+                    textfont: { size: 11 }
+                }];
+
+                const layout = {
+                    title: 'Сравнение алгоритмов по стоимости',
+                    xaxis: {
+                        title: 'Алгоритм',
+                        tickfont: { size: 12 }
+                    },
+                    yaxis: {
+                        title: 'Стоимость (руб)',
+                        tickprefix: '',
+                        range: [0, Math.max(...costs) * 1.2]
+                    },
+                    height: 400,
+                    margin: { t: 50, b: 80, l: 80, r: 30 },
+                    showlegend: false,
+                    bargap: 0.3
+                };
+
+                Plotly.newPlot(chartContainer, chartData, layout);
+
+                let statsHtml = '<div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px;">';
+
+                data.comparison.forEach(alg => {
+                    const algName = algorithmNames[alg.algorithm] || alg.algorithm;
+                    const colorMap = {
+                        'genetic': '#3498db',
+                        'annealing': '#e74c3c',
+                        'ant_colony': '#2ecc71'
+                    };
+                    statsHtml += `
+                        <div class="metric-card" style="border-left-color: ${colorMap[alg.algorithm]};">
+                            <div style="font-size: 1.2rem; font-weight: bold; color: var(--primary); margin-bottom: 10px;">
+                                ${algName}
+                            </div>
+                            <div style="font-size: 1.5rem; font-weight: bold; color: var(--dark); margin-bottom: 10px;">
+                                ${alg.total_cost.toFixed(2)} ₽
+                            </div>
+                            <div style="display: flex; justify-content: space-around; margin-top: 10px;">
+                                <div>
+                                    <div style="font-size: 0.8rem; color: var(--gray);">ТС</div>
+                                    <div style="font-size: 1.1rem; font-weight: bold;">${alg.vehicles_used}</div>
+                                </div>
+                                <div>
+                                    <div style="font-size: 0.8rem; color: var(--gray);">Время</div>
+                                    <div style="font-size: 1.1rem; font-weight: bold;">${alg.total_time.toFixed(2)}ч</div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                statsHtml += '</div>';
+
+                if (data.best_algorithm) {
+                    const bestName = algorithmNames[data.best_algorithm] || data.best_algorithm;
+                    statsHtml += `
+                        <div style="margin-top: 20px;">
+                            <div class="metric-card" style="border-left-color: #f39c12; background: linear-gradient(135deg, #fff, #fff9e6);">
+                                <div style="display: flex; align-items: center; justify-content: center; gap: 15px; padding: 10px;">
+                                    <i class="fas fa-trophy" style="color: #f39c12; font-size: 2.5rem;"></i>
+                                    <div>
+                                        <div style="font-size: 1.2rem; font-weight: bold;">Лучший алгоритм</div>
+                                        <div style="font-size: 1.5rem; color: var(--primary); font-weight: bold;">${bestName}</div>
+                                        <div style="font-size: 1.1rem; color: var(--success);">
+                                            ${data.best_cost.toFixed(2)} ₽
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                statsContainer.innerHTML = statsHtml;
+
+            } catch (error) {
+                console.error('❌ Ошибка загрузки алгоритмов:', error);
+                chartContainer.innerHTML = `
+                    <div style="text-align: center; padding: 40px;">
+                        <i class="fas fa-exclamation-circle" style="color: var(--accent); font-size: 3rem; margin-bottom: 15px;"></i>
+                        <p style="color: var(--accent);">Ошибка загрузки данных</p>
+                        <button onclick="loadAlgorithmComparison()" class="btn btn-primary" style="margin-top: 20px;">
+                            <i class="fas fa-sync-alt"></i> Повторить
+                        </button>
+                    </div>
+                `;
+                statsContainer.innerHTML = '';
+            }
+        }
+
+        // ЭКСПОРТ ОТЧЕТОВ
+        async function exportReport(format) {
+            const simulationId = document.getElementById('exportSimulation').value;
+            const exportStatus = document.getElementById('exportStatus');
+
+            if (!AUTH_TOKEN) {
+                showNotification('Требуется авторизация', 'error');
+                showAuthModal();
+                return;
+            }
+
+            exportStatus.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Генерация отчета...';
+
+            try {
+                const response = await fetch(
+                    `${API_BASE_URL}/export/simulation/${simulationId}/${format}`,
+                    {
+                        headers: {
+                            'Authorization': `Bearer ${AUTH_TOKEN}`
+                        }
+                    }
+                );
+
+                if (response.ok) {
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `simulation_${simulationId}.${format}`;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    window.URL.revokeObjectURL(url);
+
+                    exportStatus.innerHTML = '<span style="color: var(--success);">✅ Отчет успешно скачан</span>';
+                    showNotification(`✅ Отчет ${format.toUpperCase()} сохранен`, 'success');
+                } else {
+                    exportStatus.innerHTML = '<span style="color: var(--accent);">❌ Ошибка генерации отчета</span>';
+                    showNotification(`❌ Ошибка экспорта: ${response.status}`, 'error');
+                }
+            } catch (error) {
+                console.error('Export error:', error);
+                exportStatus.innerHTML = '<span style="color: var(--accent);">❌ Ошибка подключения</span>';
+                showNotification('❌ Сервер недоступен', 'error');
+            }
+        }
+
+        // НАВИГАЦИЯ
+        function showTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.add('hidden');
+            });
+
+            document.querySelectorAll('.tab').forEach(btn => {
+                btn.classList.remove('active');
+            });
+
+            document.getElementById(`${tabName}-tab`).classList.remove('hidden');
+            event.target.classList.add('active');
+
+            if (tabName === 'analysis') {
+                loadAlgorithmComparison();
+            } else if (tabName === 'scenarios') {
+                loadScenariosFromDB();
+            } else if (tabName === 'simulation') {
+                loadScenariosFromDB();
+            }
+        }
+
+        // УВЕДОМЛЕНИЯ
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `notification notification-${type}`;
+
+            let icon = 'info-circle';
+            if (type === 'success') icon = 'check-circle';
+            if (type === 'error') icon = 'exclamation-circle';
+            if (type === 'warning') icon = 'exclamation-triangle';
+
+            notification.innerHTML = `<i class="fas fa-${icon}"></i> ${message}`;
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                notification.style.animation = 'slideDown 0.3s ease reverse';
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

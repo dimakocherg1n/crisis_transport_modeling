@@ -1,0 +1,85 @@
+{
+  "detail": [
+    {
+      "type": "int_parsing",
+      "loc": [
+        "body",
+        "vehicles",
+        0,
+        "id"
+      ],
+      "msg": "Input should be a valid integer, unable to parse string as an integer",
+      "input": "vehicle_1",
+      "url": "https://errors.pydantic.dev/2.5/v/int_parsing"
+    },
+    {
+      "type": "tuple_type",
+      "loc": [
+        "body",
+        "vehicles",
+        0,
+        "current_location"
+      ],
+      "msg": "Input should be a valid tuple",
+      "input": {
+        "latitude": 55.7558,
+        "longitude": 37.6173
+      },
+      "url": "https://errors.pydantic.dev/2.5/v/tuple_type"
+    },
+    {
+      "type": "enum",
+      "loc": [
+        "body",
+        "vehicles",
+        0,
+        "vehicle_type"
+      ],
+      "msg": "Input should be 'ambulance', 'fire_truck', 'police', 'bus' or 'truck'",
+      "input": "TRUCK",
+      "ctx": {
+        "expected": "'ambulance', 'fire_truck', 'police', 'bus' or 'truck'"
+      }
+    },
+    {
+      "type": "int_parsing",
+      "loc": [
+        "body",
+        "delivery_points",
+        0,
+        "id"
+      ],
+      "msg": "Input should be a valid integer, unable to parse string as an integer",
+      "input": "point_1",
+      "url": "https://errors.pydantic.dev/2.5/v/int_parsing"
+    },
+    {
+      "type": "tuple_type",
+      "loc": [
+        "body",
+        "delivery_points",
+        0,
+        "location"
+      ],
+      "msg": "Input should be a valid tuple",
+      "input": {
+        "latitude": 55.76,
+        "longitude": 37.62
+      },
+      "url": "https://errors.pydantic.dev/2.5/v/tuple_type"
+    },
+    {
+      "type": "tuple_type",
+      "loc": [
+        "body",
+        "depot_location"
+      ],
+      "msg": "Input should be a valid tuple",
+      "input": {
+        "latitude": 55.7558,
+        "longitude": 37.6173
+      },
+      "url": "https://errors.pydantic.dev/2.5/v/tuple_type"
+    }
+  ]
+}
