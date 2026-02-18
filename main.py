@@ -3,6 +3,7 @@ Crisis Transport Optimization API v2.0
 Главный модуль приложения
 """
 import logging
+import os  # <-- ДОБАВЛЯЕМ ЭТОТ ИМПОРТ!
 from fastapi import FastAPI, Request, HTTPException, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
@@ -33,11 +34,10 @@ START_TIME = time.time()
 
 def init_database():
     """Инициализация базы данных и создание тестовых данных"""
-    conn = sqlite3.connect('users.db')
+    # ИСПРАВЛЕНО: используем абсолютный путь для Render
+    db_path = '/app/users.db' if os.path.exists('/app') else 'users.db'
+    conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
-
-    # ✅ УБИРАЕМ DROP TABLE - ТЕПЕРЬ ДАННЫЕ СОХРАНЯЮТСЯ!
-    # cursor.execute("DROP TABLE IF EXISTS scenarios")
 
     # СОЗДАЕМ ТАБЛИЦУ СЦЕНАРИЕВ ТОЛЬКО ЕСЛИ ЕЁ НЕТ
     cursor.execute('''
@@ -235,14 +235,22 @@ async def general_exception_handler(request: Request, exc: Exception):
 
 print("=" * 60)
 print("✅ CRISIS TRANSPORT OPTIMIZATION API v2.0 УСПЕШНО ЗАПУЩЕНО!")
-print(f"📚 Документация: http://localhost:8001/docs")
-print(f"❤️ Health check: http://localhost:8001/health")
-print(f"🔐 Аутентификация: http://localhost:8001/api/v1/auth")
-print(f"🚛 Оптимизация: http://localhost:8001/api/v1/optimization")
-print(f"📊 Симуляция: http://localhost:8001/api/v1/simulation")
-print(f"📄 Экспорт: http://localhost:8001/api/v1/export")
-print(f"🆕 Создание симуляций: http://localhost:8001/api/v1/simulations/create")
-print(f"📋 Список симуляций: http://localhost:8001/api/v1/simulations/list")
-print(f"🎭 Создание сценариев: http://localhost:8001/api/v1/scenarios/create")
-print(f"📚 Список сценариев: http://localhost:8001/api/v1/scenarios/list")
+print(f"📚 Документация: https://ваш-сервис.onrender.com/docs")
+print(f"❤️ Health check: https://ваш-сервис.onrender.com/health")
+print(f"🔐 Аутентификация: https://ваш-сервис.onrender.com/api/v1/auth")
+print(f"🚛 Оптимизация: https://ваш-сервис.onrender.com/api/v1/optimization")
+print(f"📊 Симуляция: https://ваш-сервис.onrender.com/api/v1/simulation")
+print(f"📄 Экспорт: https://ваш-сервис.onrender.com/api/v1/export")
+print(f"🆕 Создание симуляций: https://ваш-сервис.onrender.com/api/v1/simulations/create")
+print(f"📋 Список симуляций: https://ваш-сервис.onrender.com/api/v1/simulations/list")
+print(f"🎭 Создание сценариев: https://ваш-сервис.onrender.com/api/v1/scenarios/create")
+print(f"📚 Список сценариев: https://ваш-сервис.onrender.com/api/v1/scenarios/list")
 print("=" * 60)
+
+# ============================================
+# ВАЖНО: ЭТА ЧАСТЬ ДЛЯ RENDER (ЗАПУСК)
+# ============================================
+if __name__ == "__main__":
+    import uvicorn
+    port = int(os.getenv("PORT", 8000))
+    uvicorn.run("main:app", host="0.0.0.0", port=port, reload=False)
