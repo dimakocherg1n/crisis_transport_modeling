@@ -3,10 +3,11 @@ Crisis Transport Optimization API v2.0
 Главный модуль приложения
 """
 import logging
-import os  # <-- ДОБАВЛЯЕМ ЭТОТ ИМПОРТ!
+import os
 from fastapi import FastAPI, Request, HTTPException, Depends
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, HTMLResponse, FileResponse
+from fastapi.staticfiles import StaticFiles
 from contextlib import asynccontextmanager
 import time
 import sqlite3
@@ -166,6 +167,15 @@ app.add_middleware(
 )
 
 # ============================================
+# ПОДКЛЮЧАЕМ СТАТИЧЕСКИЕ ФАЙЛЫ (для index.html)
+# ============================================
+# Создаем папку static если её нет
+os.makedirs("static", exist_ok=True)
+
+# Подключаем статические файлы
+app.mount("/static", StaticFiles(directory="static"), name="static")
+
+# ============================================
 # ПОДКЛЮЧАЕМ РОУТЕРЫ
 # ============================================
 print("✅ Подключение роутера аутентификации...")
@@ -189,7 +199,29 @@ app.include_router(scenarios_router)
 # ============================================
 # БАЗОВЫЕ ЭНДПОИНТЫ
 # ============================================
-@app.get("/")
+@app.get("/", response_class=HTMLResponse)
+async def serve_index():
+    """Отдает главную страницу из папки static"""
+    try:
+        with open("static/index.html", "r", encoding="utf-8") as f:
+            html_content = f.read()
+        return HTMLResponse(content=html_content)
+    except FileNotFoundError:
+        return HTMLResponse(
+            content="""
+            <html>
+                <head><title>Файл не найден</title></head>
+                <body>
+                    <h1>Файл index.html не найден</h1>
+                    <p>Поместите файл в папку <code>static/</code></p>
+                    <p>API доступно по адресу: <a href="/docs">/docs</a></p>
+                </body>
+            </html>
+            """,
+            status_code=404
+        )
+
+@app.get("/api-info")
 async def root():
     uptime = time.time() - START_TIME
     return {
@@ -235,16 +267,17 @@ async def general_exception_handler(request: Request, exc: Exception):
 
 print("=" * 60)
 print("✅ CRISIS TRANSPORT OPTIMIZATION API v2.0 УСПЕШНО ЗАПУЩЕНО!")
-print(f"📚 Документация: https://ваш-сервис.onrender.com/docs")
-print(f"❤️ Health check: https://ваш-сервис.onrender.com/health")
-print(f"🔐 Аутентификация: https://ваш-сервис.onrender.com/api/v1/auth")
-print(f"🚛 Оптимизация: https://ваш-сервис.onrender.com/api/v1/optimization")
-print(f"📊 Симуляция: https://ваш-сервис.onrender.com/api/v1/simulation")
-print(f"📄 Экспорт: https://ваш-сервис.onrender.com/api/v1/export")
-print(f"🆕 Создание симуляций: https://ваш-сервис.onrender.com/api/v1/simulations/create")
-print(f"📋 Список симуляций: https://ваш-сервис.onrender.com/api/v1/simulations/list")
-print(f"🎭 Создание сценариев: https://ваш-сервис.onrender.com/api/v1/scenarios/create")
-print(f"📚 Список сценариев: https://ваш-сервис.onrender.com/api/v1/scenarios/list")
+print(f"📚 Документация: https://crisis-transport-modelingg.onrender.com/docs")
+print(f"❤️ Health check: https://crisis-transport-modelingg.onrender.com/health")
+print(f"🌐 Веб-интерфейс: https://crisis-transport-modelingg.onrender.com/")
+print(f"🔐 Аутентификация: https://crisis-transport-modelingg.onrender.com/api/v1/auth")
+print(f"🚛 Оптимизация: https://crisis-transport-modelingg.onrender.com/api/v1/optimization")
+print(f"📊 Симуляция: https://crisis-transport-modelingg.onrender.com/api/v1/simulation")
+print(f"📄 Экспорт: https://crisis-transport-modelingg.onrender.com/api/v1/export")
+print(f"🆕 Создание симуляций: https://crisis-transport-modelingg.onrender.com/api/v1/simulations/create")
+print(f"📋 Список симуляций: https://crisis-transport-modelingg.onrender.com/api/v1/simulations/list")
+print(f"🎭 Создание сценариев: https://crisis-transport-modelingg.onrender.com/api/v1/scenarios/create")
+print(f"📚 Список сценариев: https://crisis-transport-modelingg.onrender.com/api/v1/scenarios/list")
 print("=" * 60)
 
 # ============================================
