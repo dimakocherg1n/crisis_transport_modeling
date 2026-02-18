@@ -1398,51 +1398,85 @@ async function register() {
         }
 
         // ЭКСПОРТ ОТЧЕТОВ
-        async function exportReport(format) {
-            const simulationId = document.getElementById('exportSimulation').value;
-            const exportStatus = document.getElementById('exportStatus');
+async function exportReport(format) {
+    const simulationId = document.getElementById('exportSimulation').value;
+    const exportStatus = document.getElementById('exportStatus');
 
-            if (!AUTH_TOKEN) {
-                showNotification('Требуется авторизация', 'error');
-                showAuthModal();
-                return;
-            }
+    if (!AUTH_TOKEN) {
+        showNotification('Требуется авторизация', 'error');
+        showAuthModal();
+        return;
+    }
 
-            exportStatus.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Генерация отчета...';
+    // ДИАГНОСТИКА
+    console.log('📤 Экспорт в формате:', format);
+    console.log('📦 ID симуляции:', simulationId);
+    console.log('🔑 Токен:', AUTH_TOKEN ? 'есть' : 'нет');
 
+    exportStatus.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Генерация отчета...';
+
+    try {
+        // ПРОБУЕМ РАЗНЫЕ ВАРИАНТЫ URL
+        const urls = [
+            `${API_BASE_URL}/export/simulation/${simulationId}/${format}`,
+            `${API_BASE_URL}/export/simulation/${simulationId}/${format}`,
+            `https://crisis-transport-modelingg.onrender.com/export/simulation/${simulationId}/${format}`,
+            `https://crisis-transport-modelingg.onrender.com/api/export/simulation/${simulationId}/${format}`
+        ];
+
+        let response = null;
+        let usedUrl = '';
+
+        for (const url of urls) {
             try {
-                const response = await fetch(
-                    `${API_BASE_URL}/export/simulation/${simulationId}/${format}`,
-                    {
-                        headers: {
-                            'Authorization': `Bearer ${AUTH_TOKEN}`
-                        }
+                console.log('🔄 Пробуем URL:', url);
+                const testResponse = await fetch(url, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${AUTH_TOKEN}`
                     }
-                );
-
-                if (response.ok) {
-                    const blob = await response.blob();
-                    const url = window.URL.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    a.href = url;
-                    a.download = `simulation_${simulationId}.${format}`;
-                    document.body.appendChild(a);
-                    a.click();
-                    document.body.removeChild(a);
-                    window.URL.revokeObjectURL(url);
-
-                    exportStatus.innerHTML = '<span style="color: var(--success);">✅ Отчет успешно скачан</span>';
-                    showNotification(`✅ Отчет ${format.toUpperCase()} сохранен`, 'success');
-                } else {
-                    exportStatus.innerHTML = '<span style="color: var(--accent);">❌ Ошибка генерации отчета</span>';
-                    showNotification(`❌ Ошибка экспорта: ${response.status}`, 'error');
+                });
+                
+                if (testResponse.status !== 404) {
+                    response = testResponse;
+                    usedUrl = url;
+                    console.log('✅ Рабочий URL найден:', url);
+                    break;
                 }
-            } catch (error) {
-                console.error('Export error:', error);
-                exportStatus.innerHTML = '<span style="color: var(--accent);">❌ Ошибка подключения</span>';
-                showNotification('❌ Сервер недоступен', 'error');
+            } catch (e) {
+                console.log('❌ Ошибка при попытке:', url);
             }
         }
+
+        if (!response) {
+            throw new Error('Не удалось найти рабочий эндпоинт');
+        }
+
+        if (response.ok) {
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `simulation_${simulationId}.${format}`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+
+            exportStatus.innerHTML = '<span style="color: var(--success);">✅ Отчет успешно скачан</span>';
+            showNotification(`✅ Отчет ${format.toUpperCase()} сохранен`, 'success');
+        } else {
+            const errorText = await response.text();
+            console.error('❌ Ошибка сервера:', response.status, errorText);
+            exportStatus.innerHTML = `<span style="color: var(--accent);">❌ Ошибка ${response.status}</span>`;
+            showNotification(`❌ Ошибка экспорта: ${response.status}`, 'error');
+        }
+    } catch (error) {
+        console.error('❌ Export error:', error);
+        exportStatus.innerHTML = '<span style="color: var(--accent);">❌ Ошибка подключения</span>';
+        showNotification('❌ Сервер недоступен', 'error');
+    }
+}
 
         // НАВИГАЦИЯ
         function showTab(tabName) {
