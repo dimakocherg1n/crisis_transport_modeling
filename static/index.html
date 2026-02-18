@@ -1397,8 +1397,7 @@ async function register() {
             }
         }
 
-        // ЭКСПОРТ ОТЧЕТОВ
-async function exportReport(format) {
+   async function exportReport(format) {
     const simulationId = document.getElementById('exportSimulation').value;
     const exportStatus = document.getElementById('exportStatus');
 
@@ -1407,6 +1406,59 @@ async function exportReport(format) {
         showAuthModal();
         return;
     }
+
+    console.log('📤 Экспорт в формате:', format);
+    console.log('📦 ID симуляции:', simulationId);
+    console.log('🔑 Токен:', AUTH_TOKEN ? 'есть' : 'нет');
+
+    exportStatus.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Генерация отчета...';
+
+    try {
+        const url = `${API_BASE_URL}/export/simulation/${simulationId}/${format}`;
+        console.log('🌐 URL:', url);
+
+        const response = await fetch(url, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${AUTH_TOKEN}`  // ← ЭТО КЛЮЧЕВОЕ!
+            }
+        });
+
+        console.log('📊 Статус ответа:', response.status);
+
+        if (response.status === 401) {
+            console.error('❌ Ошибка авторизации. Токен:', AUTH_TOKEN ? AUTH_TOKEN.substring(0, 20) + '...' : 'нет');
+            exportStatus.innerHTML = '<span style="color: var(--accent);">❌ Ошибка авторизации</span>';
+            showNotification('❌ Требуется повторный вход', 'error');
+            logout();
+            return;
+        }
+
+        if (response.ok) {
+            const blob = await response.blob();
+            const downloadUrl = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = downloadUrl;
+            a.download = `simulation_${simulationId}.${format}`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(downloadUrl);
+
+            exportStatus.innerHTML = '<span style="color: var(--success);">✅ Отчет успешно скачан</span>';
+            showNotification(`✅ Отчет ${format.toUpperCase()} сохранен`, 'success');
+        } else {
+            const errorText = await response.text();
+            console.error('❌ Ошибка сервера:', response.status, errorText);
+            exportStatus.innerHTML = `<span style="color: var(--accent);">❌ Ошибка ${response.status}</span>`;
+            showNotification(`❌ Ошибка экспорта: ${response.status}`, 'error');
+        }
+    } catch (error) {
+        console.error('❌ Ошибка сети:', error);
+        exportStatus.innerHTML = '<span style="color: var(--accent);">❌ Сервер недоступен</span>';
+        showNotification('❌ Сервер недоступен', 'error');
+    }
+}
 
     // ДИАГНОСТИКА
     console.log('📤 Экспорт в формате:', format);
